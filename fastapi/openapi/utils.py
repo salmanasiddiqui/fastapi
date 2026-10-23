@@ -10,8 +10,6 @@ from fastapi import routing
 from fastapi._compat import (
     ModelField,
     get_definitions,
-    get_flat_models_from_fields,
-    get_model_name_map,
     get_schema_from_model_field,
     lenient_issubclass,
 )
@@ -610,8 +608,7 @@ def get_openapi(
     webhook_paths: dict[str, dict[str, Any]] = {}
     operation_ids: set[str] = set()
     all_fields = get_fields_from_routes(list(routes) + list(webhooks or []))
-    flat_models = get_flat_models_from_fields(all_fields, known_models=set())
-    model_name_map = get_model_name_map(flat_models)
+    model_name_map: ModelNameMap = {}
     field_mapping, definitions = get_definitions(
         fields=all_fields,
         model_name_map=model_name_map,

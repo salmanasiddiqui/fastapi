@@ -294,35 +294,6 @@ def get_definitions(
     dict[str, dict[str, Any]],
 ]:
     schema_generator = GenerateJsonSchema(ref_template=REF_TEMPLATE)
-    validation_fields = [field for field in fields if field.mode == "validation"]
-    serialization_fields = [field for field in fields if field.mode == "serialization"]
-    flat_validation_models = get_flat_models_from_fields(
-        validation_fields, known_models=set()
-    )
-    flat_serialization_models = get_flat_models_from_fields(
-        serialization_fields, known_models=set()
-    )
-    flat_validation_model_fields = [
-        ModelField(
-            field_info=FieldInfo(annotation=model),
-            name=model.__name__,
-            mode="validation",
-        )
-        for model in flat_validation_models
-    ]
-    flat_serialization_model_fields = [
-        ModelField(
-            field_info=FieldInfo(annotation=model),
-            name=model.__name__,
-            mode="serialization",
-        )
-        for model in flat_serialization_models
-    ]
-    flat_model_fields = flat_validation_model_fields + flat_serialization_model_fields
-    input_types = {f.field_info.annotation for f in fields}
-    unique_flat_model_fields = {
-        f for f in flat_model_fields if f.field_info.annotation not in input_types
-    }
     inputs = [
         (
             field,
@@ -333,7 +304,7 @@ def get_definitions(
             ),
             field._type_adapter.core_schema,
         )
-        for field in list(fields) + list(unique_flat_model_fields)
+        for field in fields
     ]
     field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
     for item_def in cast(dict[str, dict[str, Any]], definitions).values():
